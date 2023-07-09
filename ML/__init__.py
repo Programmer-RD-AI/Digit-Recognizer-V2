@@ -16,6 +16,7 @@ from torchvision import transforms
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from wandb import AlertLevel
 
 PROJECT_NAME = "Digit Recognizer V2"
 device = "cuda" if torch.cuda.is_available() else "cpu"
