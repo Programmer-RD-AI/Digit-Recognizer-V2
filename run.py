@@ -20,28 +20,35 @@ train_transform = transforms.Compose(
 train_dataset = TrainDataset(
     path="ML/data/train.csv", label_col="label", transforms=train_transform, train=True
 )
-val_transform = transforms.Compose(
+test_transform = transforms.Compose(
     [transforms.ToPILImage(), transforms.Resize((28, 28)), transforms.ToTensor()]
 )
-val_dataset = TrainDataset(
-    path="ML/data/train.csv", label_col="label", transforms=val_transform, train=False
+test_dataset = TrainDataset(
+    path="ML/data/train.csv", label_col="label", transforms=test_transform, train=False
 )
-test_dataset = TestDataset(path="ML/data/test.csv")
+val_dataset = TestDataset(path="ML/data/test.csv")
 train_dl = DataLoader(
     train_dataset, batch_size=32, shuffle=True, num_workers=round(os.cpu_count() / 2)
-)
-test_dl = DataLoader(
-    test_dataset, batch_size=32, shuffle=False, num_workers=round(os.cpu_count() / 2)
 )
 valid_dl = DataLoader(
     val_dataset, batch_size=1, shuffle=False, num_workers=round(os.cpu_count() / 2)
 )
+test_dl = DataLoader(
+    test_dataset, batch_size=32, shuffle=True, num_workers=round(os.cpu_count() / 2)
+)
 class_names = train_dataset.classes()
-model = LinearModel(in_size=784, hidden_unis=256, out_size=len(class_names)).to(device)
+# print(next(iter(train_dl)))
+# model = CNNModel(1, 4, 256, len(class_names)).to(device)
+model = torchvision.models.resnet101()
+model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+model.fc = nn.Linear(2048, len(class_names))
+# print(model)
+# model = LinearModel(affine=True).to(device)
+model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 lr_schedular = None
-epochs = 100
+epochs = 10
 t = Training(
     model,
     criterion,
@@ -54,7 +61,7 @@ t = Training(
     PROJECT_NAME,
     device,
     class_names,
-    False,
-    valid_dl,
+    val_dataset,
 )
-t.train("Baseline")
+# t.train("resnet101")
+# print(t.test())
