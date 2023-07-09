@@ -56,8 +56,10 @@ class Training:
         self.metrics = Metrics(criterion, classes, binary)
 
     def train(self, run_name):
+        torchinfo.summary(self.model)
         wandb.init(projet=self.project_name, run_name=run_name)
         wandb.watch(self.model, log_graph=True, log="all")
+        all_results = []
         for _ in tqdm(range(self.epochs)):
             model.train()
             for X_batch, y_batch in self.train_dl:
@@ -71,7 +73,12 @@ class Training:
                 self.optimizer.step()
             if self.lr_schedular:
                 self.lr_schedular.step()
-            wandb.log(self.test())
+            results = self.test()
+            all_results.append(results)
+            wandb.log(results)
+        wandb.save()
+        wandb.finish()
+        return all_results
 
     def test(
         self,
@@ -88,6 +95,9 @@ class Training:
                         X = X.to(self.device)
                         y = y.to(self.device)
                         logits = self.model(X)
-                        preds = torch.argmax(torch.softmax(logits, dim=1), dim=1)
-                        metric(preds, y)
-            # __class__.__name__
+                        tot += metric(logits, y)
+                    results[f"{self.dl.__name__} {metric.__name__}"] = tot / len(dl)
+        return results
+
+    def make_predictions(self):
+        pass
