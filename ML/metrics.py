@@ -2,6 +2,7 @@ from ML import *
 
 
 class Metrics:
+
     def __init__(self, criterion: nn.Module, classes: list, dataloader, model):
         self.device = "cuda"
         self.criterion = criterion
@@ -19,7 +20,9 @@ class Metrics:
     def accuracy(self):
         tot = 0
         for X, y in self.dataloader:
-            preds = torch.argmax(torch.softmax(self.model(X.to(self.device)), dim=1), dim=1)
+            preds = torch.argmax(torch.softmax(self.model(X.to(self.device)),
+                                               dim=1),
+                                 dim=1)
             tot = 0
             cor = 0
             for pred, tr in zip(preds, y):
@@ -30,12 +33,12 @@ class Metrics:
             tot += cor / tot
         return (tot / len(self.dataloader)) * 100
 
-    def precision(
-        self,
-    ):
+    def precision(self, ):
         tot = 0
         for X, y in self.dataloader:
-            preds = torch.argmax(torch.softmax(self.model(X.to(self.device)), dim=1), dim=1)
+            preds = torch.argmax(torch.softmax(self.model(X.to(self.device)),
+                                               dim=1),
+                                 dim=1)
             tot_prec = 0
             for clz in self.classes:
                 tp = 0

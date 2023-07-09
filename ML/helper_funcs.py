@@ -2,6 +2,7 @@ from ML import *
 
 
 class Normalizer:
+
     def __init__(self, path, label_col):
         self.data = pd.read_csv(path).drop(label_col, axis=1)
         self.no = len(self.data)
@@ -15,7 +16,7 @@ class Normalizer:
         iter_loop = tqdm(range(len(self.data)))
         for i in iter_loop:
             iter_loop.set_description(f"{np.sum(self.data.iloc[i].tolist())}")
-            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg) ** 2
+            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg)**2
         return np.sqrt(tot / self.no)
 
     def mean(self) -> float:
@@ -26,6 +27,7 @@ class Normalizer:
 
 
 class Training:
+
     def __init__(
         self,
         model: nn.Module,
@@ -94,9 +96,7 @@ class Training:
         # predictions = self.make_predictions(run_name) # TODO
         # return all_results, predictions
 
-    def test(
-        self,
-    ):
+    def test(self, ):
         # self.model.eval()
         with torch.no_grad():
             results = {}
@@ -113,10 +113,14 @@ class Training:
         self.model.eval()
         predictions = {}
         for i, image in enumerate(self.valid_dl):
-            pred = torch.argmax(torch.softmax(self.model(image.view(1, 28, 28)), dim=1), dim=1)
+            pred = torch.argmax(torch.softmax(self.model(image.view(1, 28,
+                                                                    28)),
+                                              dim=1),
+                                dim=1)
             predictions[i] = pred
         if run_name:
-            pd.DataFrame(predictions).to_csv(f"ML/predictions/{run_name}.csv", index=False)
+            pd.DataFrame(predictions).to_csv(f"ML/predictions/{run_name}.csv",
+                                             index=False)
         return predictions
 
     def plot_predictions(self):
