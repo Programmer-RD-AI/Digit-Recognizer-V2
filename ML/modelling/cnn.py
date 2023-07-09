@@ -16,6 +16,7 @@ class CNNModel(nn.Module):
         activation: nn.Module = nn.ReLU,
         affine: bool = False,
     ):
+        super().__init__()
         self.convblo1 = nn.Sequential(
             nn.Conv2d(in_channels, hidden_units_cnn, kernel_size, stride, padding),
             pool_type(pool),

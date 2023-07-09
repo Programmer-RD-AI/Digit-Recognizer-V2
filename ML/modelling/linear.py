@@ -2,46 +2,52 @@ from ML import *
 
 
 class LinearModel(nn.Module):
-    def __init__(self, in_size: int = 784, hidden_unis: int = 256, out_size: int = 10) -> None:
+    def __init__(
+        self, in_size: int = 784, hidden_unis: int = 256, out_size: int = 10, affine: bool = False
+    ) -> None:
+        super().__init__()
         self.linblo1 = nn.Sequential(
-            nn.Flatten(), nn.Linear(in_size, hidden_unis), nn.BatchNorm1d(hidden_unis), nn.Dropout()
+            nn.Flatten(),
+            nn.Linear(in_size, hidden_unis),
+            nn.BatchNorm1d(hidden_unis, affine=affine),
+            nn.Dropout(),
         )
         self.linblo2 = nn.Sequential(
             nn.Linear(hidden_unis, hidden_unis * 2),
-            nn.BatchNorm1d(hidden_unis * 2),
+            nn.BatchNorm1d(hidden_unis * 2, affine=affine),
         )
         self.linblo3 = nn.Sequential(
             nn.Linear(hidden_unis * 2, hidden_unis * 3),
-            nn.BatchNorm1d(hidden_unis * 3),
+            nn.BatchNorm1d(hidden_unis * 3, affine=affine),
         )
         self.linblo4 = nn.Sequential(
             nn.Linear(hidden_unis * 3, hidden_unis * 4),
-            nn.BatchNorm1d(hidden_unis * 4),
+            nn.BatchNorm1d(hidden_unis * 4, affine=affine),
         )
         self.linblo5 = nn.Sequential(
             nn.Linear(hidden_unis * 4, hidden_unis * 5),
-            nn.BatchNorm1d(hidden_unis * 5),
+            nn.BatchNorm1d(hidden_unis * 5, affine=affine),
             nn.Dropout(),
         )
         self.linblo6 = nn.Sequential(
             nn.Linear(hidden_unis * 5, hidden_unis * 6),
-            nn.BatchNorm1d(hidden_unis * 6),
+            nn.BatchNorm1d(hidden_unis * 6, affine=affine),
         )
         self.linblo7 = nn.Sequential(
             nn.Linear(hidden_unis * 6, hidden_unis * 7),
-            nn.BatchNorm1d(hidden_unis * 7),
+            nn.BatchNorm1d(hidden_unis * 7, affine=affine),
         )
         self.linblo8 = nn.Sequential(
             nn.Linear(hidden_unis * 7, hidden_unis * 8),
-            nn.BatchNorm1d(hidden_unis * 8),
+            nn.BatchNorm1d(hidden_unis * 8, affine=affine),
         )
         self.linblo9 = nn.Sequential(
             nn.Linear(hidden_unis * 8, hidden_unis * 9),
-            nn.BatchNorm1d(hidden_unis * 9),
+            nn.BatchNorm1d(hidden_unis * 9, affine=affine),
         )
         self.linblo10 = nn.Sequential(
             nn.Linear(hidden_unis * 9, hidden_unis * 8),
-            nn.BatchNorm1d(hidden_unis * 8),
+            nn.BatchNorm1d(hidden_unis * 8, affine=affine),
             nn.Dropout(),
         )
         self.out = nn.Linear(hidden_unis * 8, out_size)

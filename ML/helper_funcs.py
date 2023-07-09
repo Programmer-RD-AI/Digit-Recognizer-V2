@@ -58,11 +58,11 @@ class Training:
 
     def train(self, run_name):
         torchinfo.summary(self.model)
-        wandb.init(projet=self.project_name, run_name=run_name)
+        wandb.init(project=self.project_name, name=run_name)
         wandb.watch(self.model, log_graph=True, log="all")
         all_results = []
         for _ in tqdm(range(self.epochs)):
-            model.train()
+            self.model.train()
             for X_batch, y_batch in self.train_dl:
                 torch.cuda.empty_cache()
                 X_batch = X_batch.to(self.device)

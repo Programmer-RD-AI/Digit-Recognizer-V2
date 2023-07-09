@@ -37,8 +37,8 @@ valid_dl = DataLoader(
     val_dataset, batch_size=1, shuffle=False, num_workers=round(os.cpu_count() / 2)
 )
 class_names = train_dataset.classes()
-model = LinearModel(in_size=784, hidden_unis=256, out_size=len(class_names))
-criterion = nn.CrossEntropyLoss()
+model = LinearModel(in_size=784, hidden_unis=256, out_size=len(class_names)).to(device)
+criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 lr_schedular = None
 epochs = 100
@@ -57,4 +57,4 @@ t = Training(
     False,
     valid_dl,
 )
-t.train()
+t.train("Baseline")

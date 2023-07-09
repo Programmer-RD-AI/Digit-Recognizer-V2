@@ -29,7 +29,9 @@ class TrainDataset(Dataset):
         self.transforms = transforms
 
     def __getitem__(self, index) -> Tuple[torch.tensor, int]:
-        self.image = np.array(self.images.iloc[index].tolist()).astype(np.uint8).reshape(28, 28, 1)
+        self.image = (
+            np.array(self.images.iloc[index].values.tolist()).astype(np.uint8).reshape(28, 28, 1)
+        )
         self.image = self.transforms(self.image)
         return (
             self.image,
@@ -40,7 +42,7 @@ class TrainDataset(Dataset):
         return (self.images.shape, self.labels.shape)
 
     def __len__(self) -> int:
-        return len(self.data)
+        return len(self.labels)
 
     def classes(self):
         return np.unique(self.labels)

@@ -6,7 +6,7 @@ class TestDataset(Dataset):
         self.data = pd.read_csv(path)
 
     def __getitem__(self, index):
-        return np.array(self.data.iloc[index].tolist())
+        return np.array(self.data.iloc[index].values.tolist())
 
     def __len__(self):
         return len(self.data)

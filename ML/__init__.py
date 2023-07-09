@@ -22,7 +22,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.manual_seed(42)
 np.random.seed(42)
 torch.cuda.manual_seed(42)
-from ML.helper_funcs import *
 from ML.metrics import *
+from ML.helper_funcs import *
 from ML.data_loader import *
 from ML.modelling import *
