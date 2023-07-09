@@ -2,9 +2,16 @@ from ML import *
 
 
 class LinearModel(nn.Module):
-    def __init__(self, in_size: int = 784, hidden_unis: int = 256, out_size: int = 10) -> None:
+
+    def __init__(self,
+                 in_size: int = 784,
+                 hidden_unis: int = 256,
+                 out_size: int = 10) -> None:
         self.linblo1 = nn.Sequential(
-            nn.Flatten(), nn.Linear(in_size, hidden_unis), nn.BatchNorm1d(hidden_unis), nn.Dropout()
+            nn.Flatten(),
+            nn.Linear(in_size, hidden_unis),
+            nn.BatchNorm1d(hidden_unis),
+            nn.Dropout(),
         )
         self.linblo2 = nn.Sequential(
             nn.Linear(hidden_unis, hidden_unis * 2),
