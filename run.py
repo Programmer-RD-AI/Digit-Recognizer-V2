@@ -38,16 +38,16 @@ test_dl = DataLoader(
 )
 class_names = train_dataset.classes()
 # model = LinearModel(affine=True).to(device)
-# model = CNNModel(1, 4, 256, len(class_names)).to(device)
+model = CNNModel(1, 4, 256, len(class_names)).to(device)
 
-model = torchvision.models.resnet101()
-model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-model.fc = nn.Linear(2048, len(class_names))
+# model = torchvision.models.resnet101()
+# model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+# model.fc = nn.Linear(2048, len(class_names))
 # print(model)
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.SGD(model.parameters(), lr=0.01)
 lr_schedular = None
 epochs = 10
 t = Training(
@@ -64,5 +64,5 @@ t = Training(
     class_names,
     val_dataset,
 )
-t.train("resnet101")
+t.train("normalized-CNN-SGD")
 # print(t.test())
