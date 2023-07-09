@@ -77,6 +77,8 @@ class Training:
             results = self.test()
             all_results.append(results)
             wandb.log(results)
+        img_pred = self.plot_predictions()
+        wandb.log(img_pred)
         wandb.save()
         wandb.finish()
         predictions = self.make_predictions(run_name)
@@ -86,7 +88,7 @@ class Training:
         self,
     ):
         self.model.eval()
-        with torch.inference_model():
+        with torch.inference_mode():
             dloaders = [self.train_dl, self.test_dl]
             results = {}
             for dl in dloaders:
@@ -116,7 +118,10 @@ class Training:
         predictions = self.make_predictions()
         ids = predictions.keys()
         preds = predictions.values()
+        img_pred = {}
         for _id, pred in zip(ids, preds):
             img = torch.tensor(self.valid_ds[_id]).permute(1, 2, 0)
             plt.title(f"{pred}")
             plt.imshow(img)
+            img_pred[pred] = wandb.Image(img)
+        return img_pred
