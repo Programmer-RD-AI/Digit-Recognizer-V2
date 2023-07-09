@@ -39,7 +39,6 @@ class Training:
         project_name: str,
         device: str,
         classes: list,
-        binary: bool,
         valid_ds: Dataset,
     ) -> None:
         self.model = model
@@ -53,7 +52,8 @@ class Training:
         self.project_name = project_name
         self.device = device
         self.num_classes = len(classes)
-        self.metrics = Metrics(criterion, classes, binary)
+        self.train_metrics = Metrics(criterion, classes, train_dl, model)
+        self.test_metrics = Metrics(criterion, classes, test_dl, model)
         self.valid_ds = valid_ds
 
     def train(self, run_name):
@@ -61,7 +61,9 @@ class Training:
         wandb.init(project=self.project_name, name=run_name)
         wandb.watch(self.model, log_graph=True, log="all")
         all_results = []
-        for _ in tqdm(range(self.epochs)):
+        iterater = tqdm(range(self.epochs))
+        for _ in iterater:
+            tot = 0
             self.model.train()
             for X_batch, y_batch in self.train_dl:
                 torch.cuda.empty_cache()
@@ -72,35 +74,38 @@ class Training:
                 self.optimizer.zero_grad()
                 self.loss.backward()
                 self.optimizer.step()
+                tot += self.loss.item()
             if self.lr_schedular:
                 self.lr_schedular.step()
             results = self.test()
-            all_results.append(results)
+            # print(results)
             wandb.log(results)
-        img_pred = self.plot_predictions()
-        wandb.log(img_pred)
+            # wandb.alert(
+            #     title="Results",
+            #     text=f"{results}",
+            #     level=AlertLevel.WARN, # TODO
+            #     wait_duration=150,
+            # )
+            all_results.append(results)
+        # img_pred = self.plot_predictions() # TODO
+        # wandb.log(img_pred)
         wandb.save()
         wandb.finish()
-        predictions = self.make_predictions(run_name)
-        return all_results, predictions
+        # predictions = self.make_predictions(run_name) # TODO
+        # return all_results, predictions
 
     def test(
         self,
     ):
-        self.model.eval()
-        with torch.inference_mode():
-            dloaders = [self.train_dl, self.test_dl]
+        # self.model.eval()
+        with torch.no_grad():
             results = {}
-            for dl in dloaders:
-                metrics = [self.metrics.accuracy, self.metrics.precision, self.metrics.loss]
-                for metric in metrics:
-                    tot = 0
-                    for X, y in dl:
-                        X = X.to(self.device)
-                        y = y.to(self.device)
-                        logits = self.model(X)
-                        tot += metric(logits, y)
-                    results[f"{dl.__name__} {metric.__name__}"] = tot / len(dl)
+            results["train accuracy"] = self.train_metrics.accuracy()
+            results["test accuracy"] = self.test_metrics.accuracy()
+            results["train loss"] = self.train_metrics.loss()
+            results["test loss"] = self.test_metrics.loss()
+            results["train precision"] = self.train_metrics.precision()
+            results["test precision"] = self.test_metrics.precision()
         self.model.train()
         return results
 
@@ -108,7 +113,7 @@ class Training:
         self.model.eval()
         predictions = {}
         for i, image in enumerate(self.valid_dl):
-            pred = torch.argmax(torch.softmax(self.model(image), dim=1), dim=1)
+            pred = torch.argmax(torch.softmax(self.model(image.view(1, 28, 28)), dim=1), dim=1)
             predictions[i] = pred
         if run_name:
             pd.DataFrame(predictions).to_csv(f"ML/predictions/{run_name}.csv", index=False)
