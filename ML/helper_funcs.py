@@ -26,4 +26,67 @@ class Normalizer:
 
 
 class Training:
-    pass
+    def __init__(
+        self,
+        model: nn.Module,
+        criterion: nn.Module,
+        optimizer: optim,
+        lr_schedular: optim,
+        epochs: int,
+        train_dl: DataLoader,
+        test_dl: DataLoader,
+        valid_dl: DataLoader,
+        project_name: str,
+        device: str,
+        num_classes: int,
+    ) -> None:
+        self.model = model
+        self.criterion = criterion
+        self.optimizer = optimizer
+        self.lr_schedular = lr_schedular
+        self.epochs = epochs
+        self.train_dl = train_dl
+        self.test_dl = test_dl
+        self.valid_dl = valid_dl
+        self.project_name = project_name
+        self.device = device
+        self.num_classes = num_classes
+
+    def train(self, run_name):
+        wandb.init(projet=self.project_name, run_name=run_name)
+        wandb.watch(self.model, log_graph=True, log="all")
+        for _ in tqdm(range(self.epochs)):
+            model.train()
+            for X_batch, y_batch in self.train_dl:
+                torch.cuda.empty_cache()
+                X_batch = X_batch.to(self.device)
+                y_batch = y_batch.to(self.device)
+                logits = self.model(X_batch)
+                self.loss = self.criterion(logits, y_batch)
+                self.optimizer.zero_grad()
+                self.loss.backward()
+                self.optimizer.step()
+            if self.lr_schedular:
+                self.lr_schedular.step()
+            wandb.log(self.test())
+
+    def test(
+        self,
+        task="multiclass",
+    ):
+        self.model.eval()
+        with torch.inference_model():
+            dloaders = [self.train_dl, self.test_dl]
+            results = {}
+            for dl in dloaders:
+                metrics = [Accuracy, Precision]
+                for metric in metrics:
+                    tot = 0
+                    for X, y in dl:
+                        X = X.to(device)
+                        y = y.to(device)
+                        logits = self.model(X)
+                        preds = torch.argmax(torch.softmax(logits, dim=1), dim=1)
+                        m = metric(task, num_classes=self.num_classes)
+                        m(preds, y)
+            # __class__.__name__

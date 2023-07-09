@@ -33,3 +33,8 @@ train_dl = DataLoader(
 test_dl = DataLoader(
     test_dataset, batch_size=32, shuffle=False, num_workers=round(os.cpu_count() / 2)
 )
+valid_dl = DataLoader(
+    val_dataset, batch_size=32, shuffle=False, num_workers=round(os.cpu_count() / 2)
+)
+print(np.__version__)
+print(Accuracy.__class__.__name__)

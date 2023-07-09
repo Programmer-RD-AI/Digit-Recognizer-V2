@@ -16,6 +16,11 @@ from torchvision import transforms
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from torchmetrics import Accuracy, F1Score, Precision, Recall
+
+torch.manual_seed(42)
+np.random.seed(42)
+torch.cuda.manual_seed(42)
 from ML.helper_funcs import *
 from ML.metrics import *
 from ML.data_loader import *
