@@ -39,6 +39,8 @@ class Training:
         project_name: str,
         device: str,
         num_classes: int,
+        classes: list,
+        binary: bool,
     ) -> None:
         self.model = model
         self.criterion = criterion
@@ -51,6 +53,7 @@ class Training:
         self.project_name = project_name
         self.device = device
         self.num_classes = num_classes
+        self.metrics = Metrics(criterion, classes, binary)
 
     def train(self, run_name):
         wandb.init(projet=self.project_name, run_name=run_name)
@@ -72,21 +75,19 @@ class Training:
 
     def test(
         self,
-        task="multiclass",
     ):
         self.model.eval()
         with torch.inference_model():
             dloaders = [self.train_dl, self.test_dl]
             results = {}
             for dl in dloaders:
-                metrics = [Accuracy, Precision]
+                metrics = [self.metrics.accuracy, self.metrics.precision, self.metrics.loss]
                 for metric in metrics:
                     tot = 0
                     for X, y in dl:
-                        X = X.to(device)
-                        y = y.to(device)
+                        X = X.to(self.device)
+                        y = y.to(self.device)
                         logits = self.model(X)
                         preds = torch.argmax(torch.softmax(logits, dim=1), dim=1)
-                        m = metric(task, num_classes=self.num_classes)
-                        m(preds, y)
+                        metric(preds, y)
             # __class__.__name__
