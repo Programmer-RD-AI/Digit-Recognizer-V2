@@ -34,7 +34,27 @@ test_dl = DataLoader(
     test_dataset, batch_size=32, shuffle=False, num_workers=round(os.cpu_count() / 2)
 )
 valid_dl = DataLoader(
-    val_dataset, batch_size=32, shuffle=False, num_workers=round(os.cpu_count() / 2)
+    val_dataset, batch_size=1, shuffle=False, num_workers=round(os.cpu_count() / 2)
 )
-print(np.__version__)
-print(Accuracy.__class__.__name__)
+class_names = train_dataset.classes()
+model = LinearModel(in_size=784, hidden_unis=256, out_size=len(class_names))
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+lr_schedular = None
+epochs = 100
+t = Training(
+    model,
+    criterion,
+    optimizer,
+    lr_schedular,
+    epochs,
+    train_dl,
+    test_dl,
+    valid_dl,
+    PROJECT_NAME,
+    device,
+    class_names,
+    False,
+    valid_dl,
+)
+t.train()

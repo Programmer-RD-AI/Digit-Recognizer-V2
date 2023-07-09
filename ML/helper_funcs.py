@@ -38,9 +38,9 @@ class Training:
         valid_dl: DataLoader,
         project_name: str,
         device: str,
-        num_classes: int,
         classes: list,
         binary: bool,
+        valid_ds: Dataset,
     ) -> None:
         self.model = model
         self.criterion = criterion
@@ -52,8 +52,9 @@ class Training:
         self.valid_dl = valid_dl
         self.project_name = project_name
         self.device = device
-        self.num_classes = num_classes
+        self.num_classes = len(classes)
         self.metrics = Metrics(criterion, classes, binary)
+        self.valid_ds = valid_ds
 
     def train(self, run_name):
         torchinfo.summary(self.model)
@@ -78,7 +79,8 @@ class Training:
             wandb.log(results)
         wandb.save()
         wandb.finish()
-        return all_results
+        predictions = self.make_predictions(run_name)
+        return all_results, predictions
 
     def test(
         self,
@@ -96,8 +98,25 @@ class Training:
                         y = y.to(self.device)
                         logits = self.model(X)
                         tot += metric(logits, y)
-                    results[f"{self.dl.__name__} {metric.__name__}"] = tot / len(dl)
+                    results[f"{dl.__name__} {metric.__name__}"] = tot / len(dl)
+        self.model.train()
         return results
 
-    def make_predictions(self):
-        pass
+    def make_predictions(self, run_name=None):
+        self.model.eval()
+        predictions = {}
+        for i, image in enumerate(self.valid_dl):
+            pred = torch.argmax(torch.softmax(self.model(image), dim=1), dim=1)
+            predictions[i] = pred
+        if run_name:
+            pd.DataFrame(predictions).to_csv(f"ML/predictions/{run_name}.csv", index=False)
+        return predictions
+
+    def plot_predictions(self):
+        predictions = self.make_predictions()
+        ids = predictions.keys()
+        preds = predictions.values()
+        for _id, pred in zip(ids, preds):
+            img = torch.tensor(self.valid_ds[_id]).permute(1, 2, 0)
+            plt.title(f"{pred}")
+            plt.imshow(img)

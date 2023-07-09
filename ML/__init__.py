@@ -16,8 +16,9 @@ from torchvision import transforms
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from torchmetrics import Accuracy, F1Score, Precision, Recall
 
+PROJECT_NAME = "Digit Recognizer V2"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.manual_seed(42)
 np.random.seed(42)
 torch.cuda.manual_seed(42)
