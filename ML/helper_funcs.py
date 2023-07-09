@@ -5,23 +5,26 @@ class Normalizer:
     def __init__(self, path, label_col):
         self.data = pd.read_csv(path).drop(label_col, axis=1)
         self.no = len(self.data)
+        self.create_long_list()
 
     def std(self):
         """
         \sigma={\sqrt {\frac {\sum(x_{i}-{\mu})^{2}}{N}}}
         """
-        self.avg = self.mean()
-        tot = 0
-        iter_loop = tqdm(range(len(self.data)))
-        for i in iter_loop:
-            iter_loop.set_description(f"{np.sum(self.data.iloc[i].tolist())}")
-            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg) ** 2
-        return np.sqrt(tot / self.no)
+        return np.std(np.array(self.tot_imgs))
+
+    def create_long_list(self):
+        self.tot_imgs = []
+        for i in range(self.no):
+            self.tot_imgs.append(np.array(self.data.iloc[i].tolist()) / 255)
+        self.tot_imgs = torch.tensor(self.tot_imgs)
+        return self.tot_imgs.squeeze().view(self.no * 784)
 
     def mean(self) -> float:
         tot = 0
-        for i in range(len(self.data)):
-            tot += np.sum(self.data.iloc[i].tolist())
+        for i in tqdm(range(len(self.data))):
+            tot += (np.array(self.data.iloc[i].tolist()) / 255).mean()
+        # print(float(tot / self.no))
         return float(tot / self.no)
 
 
@@ -78,21 +81,20 @@ class Training:
             if self.lr_schedular:
                 self.lr_schedular.step()
             results = self.test()
-            # print(results)
             wandb.log(results)
-            # wandb.alert(
-            #     title="Results",
-            #     text=f"{results}",
-            #     level=AlertLevel.WARN, # TODO
-            #     wait_duration=150,
-            # )
+            wandb.alert(
+                title="Results",
+                text=f"{results}",
+                level=AlertLevel.WARN,  # TODO
+                wait_duration=150,
+            )
             all_results.append(results)
-        # img_pred = self.plot_predictions() # TODO
-        # wandb.log(img_pred)
+        img_pred = self.plot_predictions()  # TODO
+        wandb.log(img_pred)
         wandb.save()
         wandb.finish()
-        # predictions = self.make_predictions(run_name) # TODO
-        # return all_results, predictions
+        predictions = self.make_predictions(run_name)  # TODO
+        return all_results, predictions
 
     def test(
         self,
