@@ -48,7 +48,7 @@ class CNNModel(nn.Module):
         )
         self.linblo1 = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(0, hidden_units_linear),
+            nn.Linear(20 * 1 * 1, hidden_units_linear),
             nn.BatchNorm1d(hidden_units_linear, affine=affine),
             activation(),
         )
@@ -80,7 +80,7 @@ class CNNModel(nn.Module):
         y = self.convblo3(y)
         y = self.convblo4(y)
         y = self.convblo5(y)
-        print(y.shape)
+        # print(y.shape)
         y = self.linblo1(y)
         y = self.linblo2(y)
         y = self.linblo3(y)
