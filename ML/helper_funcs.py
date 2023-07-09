@@ -2,6 +2,7 @@ from ML import *
 
 
 class Normalizer:
+
     def __init__(self, path, label_col):
         self.data = pd.read_csv(path).drop(label_col, axis=1)
         self.no = len(self.data)
@@ -15,7 +16,7 @@ class Normalizer:
         iter_loop = tqdm(range(len(self.data)))
         for i in iter_loop:
             iter_loop.set_description(f"{np.sum(self.data.iloc[i].tolist())}")
-            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg) ** 2
+            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg)**2
         return np.sqrt(tot / self.no)
 
     def mean(self) -> float:
@@ -26,6 +27,7 @@ class Normalizer:
 
 
 class Training:
+
     def __init__(
         self,
         model: nn.Module,
@@ -86,7 +88,8 @@ class Training:
                         X = X.to(device)
                         y = y.to(device)
                         logits = self.model(X)
-                        preds = torch.argmax(torch.softmax(logits, dim=1), dim=1)
+                        preds = torch.argmax(torch.softmax(logits, dim=1),
+                                             dim=1)
                         m = metric(task, num_classes=self.num_classes)
                         m(preds, y)
             # __class__.__name__
