@@ -2,6 +2,7 @@ from ML import *
 
 
 class Normalizer:
+
     def __init__(self, path, label_col):
         self.data = pd.read_csv(path).drop(label_col, axis=1)
         self.no = len(self.data)
@@ -15,7 +16,7 @@ class Normalizer:
         iter_loop = tqdm(range(len(self.data)))
         for i in iter_loop:
             iter_loop.set_description(f"{np.sum(self.data.iloc[i].tolist())}")
-            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg) ** 2
+            tot += (np.sum(self.data.iloc[i].tolist()) - self.avg)**2
         return np.sqrt(tot / self.no)
 
     def mean(self) -> float:
@@ -26,6 +27,7 @@ class Normalizer:
 
 
 class Training:
+
     def __init__(
         self,
         model: nn.Module,
@@ -80,15 +82,17 @@ class Training:
         wandb.finish()
         return all_results
 
-    def test(
-        self,
-    ):
+    def test(self, ):
         self.model.eval()
         with torch.inference_model():
             dloaders = [self.train_dl, self.test_dl]
             results = {}
             for dl in dloaders:
-                metrics = [self.metrics.accuracy, self.metrics.precision, self.metrics.loss]
+                metrics = [
+                    self.metrics.accuracy,
+                    self.metrics.precision,
+                    self.metrics.loss,
+                ]
                 for metric in metrics:
                     tot = 0
                     for X, y in dl:
@@ -96,7 +100,9 @@ class Training:
                         y = y.to(self.device)
                         logits = self.model(X)
                         tot += metric(logits, y)
-                    results[f"{self.dl.__name__} {metric.__name__}"] = tot / len(dl)
+                    results[
+                        f"{self.dl.__name__} {metric.__name__}"] = tot / len(
+                            dl)
         return results
 
     def make_predictions(self):
