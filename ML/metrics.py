@@ -2,12 +2,12 @@ from ML import *
 
 
 class Metrics:
-    def __init__(self, criterion: nn.Module, classes: list, dataloader, model):
-        self.device = "cuda"
+    def __init__(self, criterion: nn.Module, classes: list, dataloader, model, device):
+        self.device = device
         self.criterion = criterion
         self.classes = torch.tensor(classes).to(device=self.device)
         self.dataloader = dataloader
-        self.model = model
+        self.model = model.to(device)
 
     def loss(self):
         tot = 0
