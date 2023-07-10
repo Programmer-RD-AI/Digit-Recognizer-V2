@@ -3,7 +3,7 @@ from ML import *
 
 class LinearModel(nn.Module):
     def __init__(
-        self, in_size: int = 784, hidden_unis: int = 256, out_size: int = 10, affine: bool = False
+        self, in_size: int = 784, hidden_unis: int = 64, out_size: int = 10, affine: bool = False
     ) -> None:
         super().__init__()
         self.linblo1 = nn.Sequential(
