@@ -37,19 +37,27 @@ test_dl = DataLoader(
     test_dataset, batch_size=32, shuffle=True, num_workers=round(os.cpu_count() / 2)
 )
 class_names = train_dataset.classes()
-# model = LinearModel(affine=True).to(device)
-model = CNNModel(1, 4, 256, len(class_names)).to(device)
+# model = LinearModel().to(device)
 
-# model = torchvision.models.resnet101()
-# model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-# model.fc = nn.Linear(2048, len(class_names))
-# print(model)
+# model = CNNModel(1, 4, 256, len(class_names)).to(device)
+
+model = torchvision.models.resnet18()
+model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+model.fc = nn.Linear(512, len(class_names))
+
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 lr_schedular = None
-epochs = 100
+epochs = 25
+config = {
+    "model": model,
+    "epochs": epochs,
+    "criterion": criterion,
+    "optimizer": optimizer,
+    "lr_schedular": lr_schedular,
+}
 t = Training(
     model,
     criterion,
@@ -63,6 +71,7 @@ t = Training(
     device,
     class_names,
     val_dataset,
+    config,
 )
-t.train("normalized-CNN-SGD")
+t.train("BaseLine-resnet18")
 # print(t.test())
