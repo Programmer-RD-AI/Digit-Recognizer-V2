@@ -2,6 +2,7 @@ from ML import *
 
 
 class Alert:
+
     def __init__(self, results, past_results):
         self.results = results
         self.past_results = past_results
