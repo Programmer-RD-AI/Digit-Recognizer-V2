@@ -49,7 +49,7 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 lr_schedular = None
-epochs = 10
+epochs = 100
 t = Training(
     model,
     criterion,
