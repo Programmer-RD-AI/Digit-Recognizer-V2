@@ -41,14 +41,14 @@ class_names = train_dataset.classes()
 
 # model = CNNModel(1, 4, 256, len(class_names)).to(device)
 
-model = torchvision.models.resnet18()
-model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-model.fc = nn.Linear(512, len(class_names))
+model = torchvision.models.vgg11()
+model.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1,)
+model.classifier[6] = nn.Linear(4096, len(class_names))
 
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = optim.SGD(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 lr_schedular = None
 epochs = 25
 config = {
@@ -73,5 +73,5 @@ t = Training(
     val_dataset,
     config,
 )
-t.train("BaseLine-resnet18")
+t.train("BaseLine-VGG11")
 # print(t.test())
