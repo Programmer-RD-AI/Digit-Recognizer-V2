@@ -39,16 +39,17 @@ test_dl = DataLoader(
 class_names = train_dataset.classes()
 # model = LinearModel().to(device)
 
-# model = CNNModel(1, 4, 256, len(class_names)).to(device)
+model = CNNModel(1, 8, 1024, len(class_names)).to(device)
 
-model = torchvision.models.vgg11()
-model.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1,)
-model.classifier[6] = nn.Linear(4096, len(class_names))
+# model = torchvision.models.resnet101(pretrained=True)
+# print(model)
+# model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+# model.fc = nn.Linear(2048, len(class_names))
 
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.SGD(model.parameters(), lr=0.01)
 lr_schedular = None
 epochs = 25
 config = {
@@ -73,5 +74,5 @@ t = Training(
     val_dataset,
     config,
 )
-t.train("BaseLine-VGG11")
+t.train(f"BaseLine-{model.__class__.__name__}")
 # print(t.test())
