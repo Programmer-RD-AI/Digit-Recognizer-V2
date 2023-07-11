@@ -67,7 +67,7 @@ class Training:
                 )
             all_results.append(results)
             past_results = results
-        predictions = self.make_predictions(run_name)  # TODO
+            predictions = self.make_predictions(run_name)
         img_pred = self.plot_predictions()  # TODO
         wandb.log(img_pred)
         wandb.save()
