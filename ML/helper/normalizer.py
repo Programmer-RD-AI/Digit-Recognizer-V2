@@ -8,7 +8,7 @@ class Normalizer:
         self.create_long_list()
 
     def std(self):
-        """
+        r"""
         \sigma={\sqrt {\frac {\sum(x_{i}-{\mu})^{2}}{N}}}
         """
         return np.std(np.array(self.tot_imgs))
