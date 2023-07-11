@@ -24,6 +24,7 @@ os.environ["WANDB_SILENT"] = "true"
 PROJECT_NAME = "Digit Recognizer V2"
 # device = torch.cuda.set_device(0)
 device = torch.device("cuda")
+torch.backends.cudnn.benchmark = True
 torch.cuda.empty_cache()
 torch.manual_seed(42)
 np.random.seed(42)
