@@ -30,7 +30,8 @@ class Training:
         self.project_name = project_name
         self.device = device
         self.num_classes = len(classes)
-        self.train_metrics = Metrics(criterion, classes, train_dl, model, device)
+        self.train_metrics = Metrics(
+            criterion, classes, train_dl, model, device)
         self.test_metrics = Metrics(criterion, classes, test_dl, model, device)
         self.valid_ds = valid_ds
         self.config = config
@@ -38,7 +39,8 @@ class Training:
     def train(self, run_name):
         torch.cuda.empty_cache()
         torchinfo.summary(self.model)
-        wandb.init(project=self.project_name, name=run_name, config=self.config)
+        wandb.init(project=self.project_name,
+                   name=run_name, config=self.config)
         wandb.watch(self.model, log="all")
         all_results = []
         iterater = tqdm(range(self.epochs))
@@ -97,7 +99,10 @@ class Training:
         for i, image in tqdm(enumerate(self.valid_dl)):
             i = i + 1
             pred = torch.argmax(
-                torch.softmax(self.model(image.view(1, 1, 28, 28).to(device).float()), dim=1), dim=1
+                torch.softmax(
+                    self.model(image.view(1, 1, 28, 28).to(device).float()), dim=1
+                ),
+                dim=1,
             )
             threading.Thread(target=preds.append, args=[pred.item()]).start()
             threading.Thread(target=ids.append, args=[i]).start()

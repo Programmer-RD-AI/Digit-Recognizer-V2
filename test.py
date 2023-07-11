@@ -1,6 +1,7 @@
-from torchvision import *
-import torchvision, torch
+import torch
+import torchvision
 from torch import nn, optim
+from torchvision import *
 
 model = torchvision.models.resnet101()
 # model.features[0][0] = nn.Conv2d(

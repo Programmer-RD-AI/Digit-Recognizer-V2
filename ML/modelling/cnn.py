@@ -18,30 +18,39 @@ class CNNModel(nn.Module):
     ):
         super().__init__()
         self.convblo1 = nn.Sequential(
-            nn.Conv2d(in_channels, hidden_units_cnn, kernel_size, stride, padding),
+            nn.Conv2d(in_channels, hidden_units_cnn,
+                      kernel_size, stride, padding),
             pool_type(pool),
             nn.BatchNorm2d(hidden_units_cnn, affine=affine),
             activation(),
         )
         self.convblo2 = nn.Sequential(
-            nn.Conv2d(hidden_units_cnn, hidden_units_cnn * 2, kernel_size, stride, padding),
+            nn.Conv2d(
+                hidden_units_cnn, hidden_units_cnn * 2, kernel_size, stride, padding
+            ),
             pool_type(pool),
             nn.BatchNorm2d(hidden_units_cnn * 2, affine=affine),
             activation(),
         )
         self.convblo3 = nn.Sequential(
-            nn.Conv2d(hidden_units_cnn * 2, hidden_units_cnn * 3, kernel_size, stride, padding),
+            nn.Conv2d(
+                hidden_units_cnn * 2, hidden_units_cnn * 3, kernel_size, stride, padding
+            ),
             pool_type(pool),
             activation(),
         )
         self.convblo4 = nn.Sequential(
-            nn.Conv2d(hidden_units_cnn * 3, hidden_units_cnn * 4, kernel_size, stride, padding),
+            nn.Conv2d(
+                hidden_units_cnn * 3, hidden_units_cnn * 4, kernel_size, stride, padding
+            ),
             pool_type(pool),
             nn.BatchNorm2d(hidden_units_cnn * 4, affine=affine),
             activation(),
         )
         self.convblo5 = nn.Sequential(
-            nn.Conv2d(hidden_units_cnn * 4, hidden_units_cnn * 5, kernel_size, stride, padding),
+            nn.Conv2d(
+                hidden_units_cnn * 4, hidden_units_cnn * 5, kernel_size, stride, padding
+            ),
             pool_type(pool),
             nn.BatchNorm2d(hidden_units_cnn * 5, affine=affine),
             activation(),

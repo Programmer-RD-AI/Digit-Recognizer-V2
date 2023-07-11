@@ -1,5 +1,4 @@
 from ML import *
-
 from ML.data_loader.train import TrainDataset
 
 n = Normalizer(path="ML/data/train.csv", label_col="label")
@@ -45,7 +44,6 @@ model = CNNModel(1, 8, 1024, len(class_names)).to(device)
 # print(model)
 # model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
 # model.fc = nn.Linear(2048, len(class_names))
-
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
