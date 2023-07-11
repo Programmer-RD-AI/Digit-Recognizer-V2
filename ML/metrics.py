@@ -20,7 +20,9 @@ class Metrics:
         tot = 0
         cor = 0
         for X, y in self.dataloader:
-            preds = torch.argmax(torch.softmax(self.model(X.to(self.device)), dim=1), dim=1)
+            preds = torch.argmax(
+                torch.softmax(self.model(X.to(self.device)), dim=1), dim=1
+            )
 
             for pred, tr in zip(preds, y):
                 if pred == tr:
@@ -34,9 +36,10 @@ class Metrics:
         tp = 0
         fp = 0
         for X, y in self.dataloader:
-            preds = torch.argmax(torch.softmax(self.model(X.to(self.device)), dim=1), dim=1)
+            preds = torch.argmax(
+                torch.softmax(self.model(X.to(self.device)), dim=1), dim=1
+            )
             for clz in self.classes:
-
                 for pred, tr in zip(preds.to(self.device), y.to(self.device)):
                     if pred == clz and tr == pred:
                         tp += 1

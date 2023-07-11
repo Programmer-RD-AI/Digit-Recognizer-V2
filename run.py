@@ -39,7 +39,6 @@ class_names = train_dataset.classes()
 
 model = CNNModel(1, 8, 1024, len(class_names)).to(device)
 
-
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.SGD(model.parameters(), lr=0.01)
