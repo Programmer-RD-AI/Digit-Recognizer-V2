@@ -36,14 +36,8 @@ test_dl = DataLoader(
     test_dataset, batch_size=32, shuffle=True, num_workers=round(os.cpu_count() / 2)
 )
 class_names = train_dataset.classes()
-# model = LinearModel().to(device)
 
 model = CNNModel(1, 8, 1024, len(class_names)).to(device)
-
-# model = torchvision.models.resnet101(pretrained=True)
-# print(model)
-# model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-# model.fc = nn.Linear(2048, len(class_names))
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss().to(device)
@@ -73,4 +67,3 @@ t = Training(
     config,
 )
 t.train(f"BaseLine-{model.__class__.__name__}")
-# print(t.test())
