@@ -21,7 +21,9 @@ class Normalizer:
         self.tot_imgs = []
         for i in range(self.no):
             self.tot_imgs.append(np.array(self.data.iloc[i].tolist()) / 255)
-        self.tot_imgs = torch.tensor(self.tot_imgs).squeeze().view(self.no * 784).float()
+        self.tot_imgs = (
+            torch.tensor(self.tot_imgs).squeeze().view(self.no * 784).float()
+        )
         return self.tot_imgs
 
     def mean(self) -> float:
