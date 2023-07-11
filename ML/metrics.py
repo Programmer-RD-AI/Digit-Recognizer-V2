@@ -24,7 +24,6 @@ class Metrics:
 
             for pred, tr in zip(preds, y):
                 if pred == tr:
-                    # print(pred, tr, len(self.dataloader))
                     cor += 1
                 tot += 1
         return (cor / tot) * 100
@@ -40,10 +39,7 @@ class Metrics:
 
                 for pred, tr in zip(preds.to(self.device), y.to(self.device)):
                     if pred == clz and tr == pred:
-                        # print(pred, clz, tr)
                         tp += 1
                     if pred == clz and tr != pred:
-                        # print(pred, clz, tr)
                         fp += 1
-                # print(tp, fp)
         return tp / (tp + fp)
