@@ -58,9 +58,9 @@ class Training:
             threading.Thread(target=self.test_step, args=[run_name]).start()
             if self.lr_schedular:
                 self.lr_schedular.step()
-        self.make_predictions()
-        img_pred = self.plot_predictions(run_name)  # TODO
-        wandb.log(img_pred)
+        # self.make_predictions()
+        # img_pred = self.plot_predictions(run_name)  # TODO
+        # wandb.log(img_pred)
         wandb.save()
         wandb.finish()
         self.save_model(run_name)

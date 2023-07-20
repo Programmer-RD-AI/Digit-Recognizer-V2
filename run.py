@@ -42,9 +42,9 @@ val = [valid_path, 1]
 train_dataset, test_dataset, val_dataset, train_dl, valid_dl, test_dl = load_data(train, test, val)
 class_names = train_dataset.classes()
 # Creating Model
-model = maxvit_t(torchvision.models.MaxVit_T_Weights.DEFAULT).to(device)
-model.stem[0][0] = Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)
-model.classifier[5] = Linear(512, len(class_names), bias=False)
+model = resnext50_32x4d(torchvision.models.ResNeXt50_32X4D_Weights.DEFAULT).to(device)
+model.conv1 = Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+model.fc = Linear(2048, len(class_names), bias=True)
 model = torch.compile(model, fullgraph=True, dynamic=True, mode="max-autotune", disable=True)
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
@@ -73,4 +73,4 @@ t = Training(
     val_dataset,
     config,
 )
-t.train(f"MaxVit_T_Weights-{model.__class__.__name__}")
+t.train(f"resnext50_32x4d-{model.__class__.__name__}")
