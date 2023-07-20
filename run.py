@@ -19,7 +19,11 @@ train_transform = transforms.Compose(
     ]
 )
 test_transform = transforms.Compose(
-    [transforms.ToPILImage(), transforms.Resize((IMG_SIZE, IMG_SIZE)), transforms.ToTensor()]
+    [
+        transforms.ToPILImage(),
+        transforms.Resize((IMG_SIZE, IMG_SIZE)),
+        transforms.ToTensor(),
+    ]
 )
 # train_transform = torchvision.models.ViT_B_16_Weights.DEFAULT.transforms()
 # test_transform = torchvision.models.ViT_B_16_Weights.DEFAULT.transforms()
@@ -39,13 +43,18 @@ test = [
     BATCH_SIZE,
 ]
 val = [valid_path, 1]
-train_dataset, test_dataset, val_dataset, train_dl, valid_dl, test_dl = load_data(train, test, val)
+train_dataset, test_dataset, val_dataset, train_dl, valid_dl, test_dl = load_data(
+    train, test, val
+)
 class_names = train_dataset.classes()
 # Creating Model
 model = maxvit_t(torchvision.models.MaxVit_T_Weights.DEFAULT).to(device)
-model.stem[0][0] = Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)
+model.stem[0][0] = Conv2d(1, 64, kernel_size=3,
+                          stride=2, padding=1, bias=False)
 model.classifier[5] = Linear(512, len(class_names), bias=False)
-model = torch.compile(model, fullgraph=True, dynamic=True, mode="max-autotune", disable=True)
+model = torch.compile(
+    model, fullgraph=True, dynamic=True, mode="max-autotune", disable=True
+)
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 lr_schedular = None
