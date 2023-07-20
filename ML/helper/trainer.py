@@ -1,5 +1,8 @@
 from ML import *
 from ML.helper.alert import *
+from ML.helper.metrics import *
+
+device = torch.device("cuda")
 
 
 class Training:
@@ -30,52 +33,56 @@ class Training:
         self.project_name = project_name
         self.device = device
         self.num_classes = len(classes)
-        self.train_metrics = Metrics(
-            criterion, classes, train_dl, model, device)
+        self.train_metrics = Metrics(criterion, classes, train_dl, model, device)
         self.test_metrics = Metrics(criterion, classes, test_dl, model, device)
         self.valid_ds = valid_ds
         self.config = config
+        self.all_results = []
+        self.resize = transforms.Resize((IMG_SIZE, IMG_SIZE))
 
     def train(self, run_name):
         torch.cuda.empty_cache()
         torchinfo.summary(self.model)
-        wandb.init(project=self.project_name,
-                   name=run_name, config=self.config)
+        wandb.init(project=self.project_name, name=run_name, config=self.config)
         wandb.watch(self.model, log="all")
-        all_results = []
         iterater = tqdm(range(self.epochs))
-        for i, _ in enumerate(iterater):
+        for _ in iterater:
             torch.cuda.empty_cache()
             self.model.train()
-            for X_batch, y_batch in self.train_dl:
+            for batch_n, (X_batch, y_batch) in enumerate(self.train_dl):
                 torch.cuda.empty_cache()
-                X_batch = X_batch.to(self.device)
-                y_batch = y_batch.to(self.device)
-                logits = self.model(X_batch)
-                self.loss = self.criterion(logits, y_batch)
-                self.optimizer.zero_grad()
-                self.loss.backward()
-                self.optimizer.step()
-            results = self.test()
-            wandb.log(results)
+                self.train_step(X_batch, y_batch)
+                iterater.set_description(f"{batch_n}/{len(self.train_dl)}")
+                torch.cuda.empty_cache()
+            iterater.set_description("Testing")
+            threading.Thread(target=self.test_step, args=[run_name]).start()
             if self.lr_schedular:
                 self.lr_schedular.step()
-            if i > 0:
-                wandb.alert(
-                    title="Results",
-                    text=Alert(results, past_results).alert(),
-                    level=AlertLevel.WARN,
-                    wait_duration=300,
-                )
-            all_results.append(results)
-            past_results = results
-            predictions = self.make_predictions(run_name)
-        img_pred = self.plot_predictions()  # TODO
+        self.make_predictions()
+        img_pred = self.plot_predictions(run_name)  # TODO
         wandb.log(img_pred)
         wandb.save()
         wandb.finish()
         self.save_model(run_name)
-        return all_results, predictions
+        return self.all_results, self.predictions
+
+    def test_step(self, run_name):
+        results = self.test()
+        wandb.log(results)
+        self.all_results.append(results)
+        self.past_results = results
+        self.predictions = self.make_predictions(run_name)
+
+    def train_step(self, X_batch, y_batch) -> Tuple[int, torch.Tensor]:
+        torch.cuda.empty_cache()
+        X_batch = X_batch.to(self.device)
+        y_batch = y_batch.to(self.device)
+        logits = self.model(X_batch)
+        self.loss = self.criterion(logits, y_batch)
+        self.optimizer.zero_grad()
+        self.loss.backward()
+        self.optimizer.step()
+        return self.loss.item(), logits
 
     def test(
         self,
@@ -83,13 +90,24 @@ class Training:
         self.model.eval()
         with torch.no_grad():
             results = {}
-            results["train accuracy"] = self.train_metrics.accuracy()
-            results["test accuracy"] = self.test_metrics.accuracy()
-            results["train loss"] = self.train_metrics.loss()
-            results["test loss"] = self.test_metrics.loss()
-            results["train precision"] = self.train_metrics.precision()
-            results["test precision"] = self.test_metrics.precision()
-        self.model.train()
+            results["train accuracy"] = threading.Thread(
+                target=self.train_metrics.accuracy, args=[()]
+            ).start()
+            results["test accuracy"] = threading.Thread(
+                target=self.test_metrics.accuracy, args=[()]
+            ).start()
+            results["train loss"] = threading.Thread(
+                target=self.train_metrics.loss, args=[()]
+            ).start()
+            results["test loss"] = threading.Thread(
+                target=self.test_metrics.loss, args=[()]
+            ).start()
+            results["train precision"] = threading.Thread(
+                target=self.train_metrics.precision, args=[()]
+            ).start()
+            results["test precision"] = threading.Thread(
+                target=self.test_metrics.precision, args=[()]
+            ).start()
         return results
 
     def make_predictions(self, run_name=None):
@@ -100,7 +118,7 @@ class Training:
             i = i + 1
             pred = torch.argmax(
                 torch.softmax(
-                    self.model(image.view(1, 1, 28, 28).to(device).float()), dim=1
+                    self.model(self.resize(image.view(1, 1, 28, 28).to(device).float())), dim=1
                 ),
                 dim=1,
             )
@@ -113,8 +131,8 @@ class Training:
             )
         return ids, preds
 
-    def plot_predictions(self):
-        ids, preds = self.make_predictions()
+    def plot_predictions(self, run_name):
+        ids, preds = self.make_predictions(run_name)
         img_pred = {}
         for _id, pred in tqdm(zip(ids, preds)):
             img = torch.tensor(self.valid_ds[_id].reshape(1, 28, 28))

@@ -1,49 +1,55 @@
 from ML import *
-from ML.data_loader.train import TrainDataset
 
+# Loading Data
 n = Normalizer(path="ML/data/train.csv", label_col="label")
-
 train_transform = transforms.Compose(
     [
         transforms.ToPILImage(),
-        transforms.Resize((28, 28)),
-        transforms.ColorJitter(0.125, 0.125, 0.125, 0.125),
-        transforms.Grayscale(1),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.GaussianBlur(5, (0.1, 1)),
+        transforms.Resize((IMG_SIZE, IMG_SIZE)),
+        # transforms.ColorJitter(0.125, 0.125, 0.125, 0.125),
+        # transforms.Grayscale(1),
+        # transforms.RandomHorizontalFlip(),
+        # transforms.RandomVerticalFlip(),
+        # transforms.GaussianBlur(5, (0.1, 1)),
         transforms.ToTensor(),
         transforms.Normalize(mean=(n.mean()), std=(n.std())),
+        # transforms.Normalize(
+        #     mean=[np.mean([0.485, 0.456, 0.406])], std=[np.mean([0.229, 0.224, 0.225])]
+        # ),
     ]
 )
-train_dataset = TrainDataset(
-    path="ML/data/train.csv", label_col="label", transforms=train_transform, train=True
-)
 test_transform = transforms.Compose(
-    [transforms.ToPILImage(), transforms.Resize((28, 28)), transforms.ToTensor()]
+    [transforms.ToPILImage(), transforms.Resize((IMG_SIZE, IMG_SIZE)), transforms.ToTensor()]
 )
-test_dataset = TrainDataset(
-    path="ML/data/train.csv", label_col="label", transforms=test_transform, train=False
-)
-val_dataset = TestDataset(path="ML/data/test.csv")
-train_dl = DataLoader(
-    train_dataset, batch_size=32, shuffle=True, num_workers=round(os.cpu_count() / 2)
-)
-valid_dl = DataLoader(
-    val_dataset, batch_size=1, shuffle=False, num_workers=round(os.cpu_count() / 2)
-)
-test_dl = DataLoader(
-    test_dataset, batch_size=32, shuffle=True, num_workers=round(os.cpu_count() / 2)
-)
+# train_transform = torchvision.models.ViT_B_16_Weights.DEFAULT.transforms()
+# test_transform = torchvision.models.ViT_B_16_Weights.DEFAULT.transforms()
+train_path = "ML/data/train.csv"
+test_path = "ML/data/train.csv"
+valid_path = "ML/data/test.csv"
+train = [
+    train_transform,
+    train_path,
+    "label",
+    BATCH_SIZE,
+]
+test = [
+    test_transform,
+    test_path,
+    "label",
+    BATCH_SIZE,
+]
+val = [valid_path, 1]
+train_dataset, test_dataset, val_dataset, train_dl, valid_dl, test_dl = load_data(train, test, val)
 class_names = train_dataset.classes()
-
-model = CNNModel(1, 8, 1024, len(class_names)).to(device)
-
-model = model.to(device)
+# Creating Model
+model = maxvit_t(torchvision.models.MaxVit_T_Weights.DEFAULT).to(device)
+model.stem[0][0] = Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)
+model.classifier[5] = Linear(512, len(class_names), bias=False)
+model = torch.compile(model, fullgraph=True, dynamic=True, mode="max-autotune", disable=True)
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = optim.SGD(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
 lr_schedular = None
-epochs = 25
+epochs = 1
 config = {
     "model": model,
     "epochs": epochs,
@@ -51,6 +57,7 @@ config = {
     "optimizer": optimizer,
     "lr_schedular": lr_schedular,
 }
+# Training
 t = Training(
     model,
     criterion,
@@ -66,4 +73,4 @@ t = Training(
     val_dataset,
     config,
 )
-t.train(f"BaseLine-{model.__class__.__name__}")
+t.train(f"MaxVit_T_Weights-{model.__class__.__name__}")
