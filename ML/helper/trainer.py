@@ -33,8 +33,7 @@ class Training:
         self.project_name = project_name
         self.device = device
         self.num_classes = len(classes)
-        self.train_metrics = Metrics(
-            criterion, classes, train_dl, model, device)
+        self.train_metrics = Metrics(criterion, classes, train_dl, model, device)
         self.test_metrics = Metrics(criterion, classes, test_dl, model, device)
         self.valid_ds = valid_ds
         self.config = config
@@ -44,8 +43,7 @@ class Training:
     def train(self, run_name):
         torch.cuda.empty_cache()
         torchinfo.summary(self.model)
-        wandb.init(project=self.project_name,
-                   name=run_name, config=self.config)
+        wandb.init(project=self.project_name, name=run_name, config=self.config)
         wandb.watch(self.model, log="all")
         iterater = tqdm(range(self.epochs))
         for _ in iterater:
@@ -57,7 +55,7 @@ class Training:
                 iterater.set_description(f"{batch_n}/{len(self.train_dl)}")
                 torch.cuda.empty_cache()
             iterater.set_description("Testing")
-            threading.Thread(target=self.test_step, args=[run_name]).start()
+            self.test_step(run_name)
             if self.lr_schedular:
                 self.lr_schedular.step()
         # self.make_predictions()
@@ -65,15 +63,15 @@ class Training:
         # wandb.log(img_pred)
         wandb.save()
         wandb.finish()
-        self.save_model(run_name)
-        return self.all_results, self.predictions
+        # self.save_model(run_name)
+        return self.all_results  # , self.predictions
 
     def test_step(self, run_name):
         results = self.test()
         wandb.log(results)
-        self.all_results.append(results)
-        self.past_results = results
-        self.predictions = self.make_predictions(run_name)
+        # self.all_results.append(results)
+        # self.past_results = results
+        # self.predictions = self.make_predictions(run_name)
 
     def train_step(self, X_batch, y_batch) -> Tuple[int, torch.Tensor]:
         torch.cuda.empty_cache()
@@ -92,24 +90,12 @@ class Training:
         self.model.eval()
         with torch.no_grad():
             results = {}
-            results["train accuracy"] = threading.Thread(
-                target=self.train_metrics.accuracy, args=[()]
-            ).start()
-            results["test accuracy"] = threading.Thread(
-                target=self.test_metrics.accuracy, args=[()]
-            ).start()
-            results["train loss"] = threading.Thread(
-                target=self.train_metrics.loss, args=[()]
-            ).start()
-            results["test loss"] = threading.Thread(
-                target=self.test_metrics.loss, args=[()]
-            ).start()
-            results["train precision"] = threading.Thread(
-                target=self.train_metrics.precision, args=[()]
-            ).start()
-            results["test precision"] = threading.Thread(
-                target=self.test_metrics.precision, args=[()]
-            ).start()
+            results["train accuracy"] = self.train_metrics.accuracy()
+            results["test accuracy"] = self.test_metrics.accuracy()
+            results["train loss"] = self.train_metrics.loss()
+            results["test loss"] = self.test_metrics.loss()
+            results["train precision"] = self.train_metrics.precision()
+            results["test precision"] = self.test_metrics.precision()
         return results
 
     def make_predictions(self, run_name=None):
@@ -120,10 +106,7 @@ class Training:
             i = i + 1
             pred = torch.argmax(
                 torch.softmax(
-                    self.model(
-                        self.resize(image.view(
-                            1, 1, 28, 28).to(device).float())
-                    ),
+                    self.model(self.resize(image.view(1, 1, 28, 28).to(device).float())),
                     dim=1,
                 ),
                 dim=1,
