@@ -1,7 +1,7 @@
 
-# Project Title
+# Digit Recognizer
 
-A brief description of what this project does and who it's for
+Learn computer vision fundamentals with the famous MNIST data
 
 
 ## License
@@ -11,7 +11,7 @@ A brief description of what this project does and who it's for
 
 ## Documentation
 
-[Documentation](https://linktodocumentation)
+[Documentation]([https://linktodocumentation](https://www.kaggle.com/competitions/digit-recognizer))
 
 
 ## Run Locally
