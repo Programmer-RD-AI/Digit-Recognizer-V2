@@ -89,7 +89,7 @@ class CNNModel(nn.Module):
         y = self.convblo3(y)
         y = self.convblo4(y)
         y = self.convblo5(y)
-        print(y.shape)
+        # print(y.shape)
         y = self.linblo1(y)
         y = self.linblo2(y)
         y = self.linblo3(y)

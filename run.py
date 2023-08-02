@@ -46,45 +46,37 @@ val = [valid_path, 1]
 train_dataset, test_dataset, val_dataset, train_dl, valid_dl, test_dl = load_data(train, test, val)
 class_names = train_dataset.classes()
 # Creating Model
-optimizers = [
-    optim.Adamax,
-    optim.ASGD,
-    optim.LBFGS,
-    optim.SGD,
-    optim.Adagrad,
-]
-for optimizer in optimizers:
-    model = efficientnet_v2_s(torchvision.models.EfficientNet_V2_S_Weights.DEFAULT).to(device)
-    model.features[0][0] = Conv2d(
-        1, 24, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
-    )
-    model.classifier[1] = Linear(1280, len(class_names), bias=True)
-    model = torch.compile(model, dynamic=True, mode="max-autotune", disable=True)
-    criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optimizer(model.parameters(), lr=0.001)
-    lr_schedular = None
-    epochs = 1
-    config = {
-        "model": model,
-        "epochs": epochs,
-        "criterion": criterion,
-        "optimizer": optimizer,
-        "lr_schedular": lr_schedular,
-    }
-    # Training
-    t = Training(
-        model,
-        criterion,
-        optimizer,
-        lr_schedular,
-        epochs,
-        train_dl,
-        test_dl,
-        valid_dl,
-        PROJECT_NAME,
-        device,
-        class_names,
-        val_dataset,
-        config,
-    )
-    t.train(f"{optimizer}-{model.__class__.__name__}")
+model = efficientnet_v2_s(torchvision.models.EfficientNet_V2_S_Weights.DEFAULT).to(device)
+model.features[0][0] = Conv2d(
+    1, 24, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+)
+model.classifier[1] = Linear(1280, len(class_names), bias=True)
+model = torch.compile(model, dynamic=True, mode="max-autotune", disable=True)
+criterion = nn.CrossEntropyLoss().to(device)
+optimizer = optimizer(model.parameters(), lr=0.001)
+lr_schedular = None
+epochs = 1
+config = {
+    "model": model,
+    "epochs": epochs,
+    "criterion": criterion,
+    "optimizer": optimizer,
+    "lr_schedular": lr_schedular,
+}
+# Training
+t = Training(
+    model,
+    criterion,
+    optimizer,
+    lr_schedular,
+    epochs,
+    train_dl,
+    test_dl,
+    valid_dl,
+    PROJECT_NAME,
+    device,
+    class_names,
+    val_dataset,
+    config,
+)
+t.train(f"{optimizer}-{model.__class__.__name__}")
