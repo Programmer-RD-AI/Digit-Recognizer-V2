@@ -37,4 +37,5 @@ def load_data(train: list, test: list, valid: list):
         num_workers=round(os.cpu_count() / 2),
         pin_memory=True,
     )
-    return (train_dataset, test_dataset, val_dataset, train_dl, valid_dl, test_dl)
+    return (train_dataset, test_dataset, val_dataset, train_dl, valid_dl,
+            test_dl)
