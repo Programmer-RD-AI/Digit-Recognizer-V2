@@ -2,6 +2,7 @@ from ML import *
 
 
 class CNNModel(nn.Module):
+
     def __init__(
         self,
         in_channels: int,
@@ -18,8 +19,7 @@ class CNNModel(nn.Module):
     ):
         super().__init__()
         self.convblo1 = nn.Sequential(
-            nn.Conv2d(in_channels, hidden_units_cnn,
-                      kernel_size, stride, padding),
+            nn.Conv2d(in_channels, hidden_units_cnn, kernel_size, stride, padding),
             pool_type(pool),
             nn.BatchNorm2d(hidden_units_cnn, affine=affine),
             activation(),

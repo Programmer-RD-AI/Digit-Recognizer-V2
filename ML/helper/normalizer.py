@@ -2,6 +2,7 @@ from ML import *
 
 
 class Normalizer:
+
     def __init__(self, path, label_col):
         self.data = pd.read_csv(path).drop(label_col, axis=1)
         self.no = len(self.data)
