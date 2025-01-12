@@ -6,6 +6,7 @@ device = torch.device("cuda")
 
 
 class Training:
+
     def __init__(
         self,
         model: nn.Module,
@@ -106,7 +107,9 @@ class Training:
             i = i + 1
             pred = torch.argmax(
                 torch.softmax(
-                    self.model(self.resize(image.view(1, 1, 28, 28).to(device).float())),
+                    self.model(
+                        self.resize(image.view(1, 1, 28, 28).to(device).float())
+                    ),
                     dim=1,
                 ),
                 dim=1,

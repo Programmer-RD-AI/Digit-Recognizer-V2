@@ -2,6 +2,7 @@ from ML import *
 
 
 class TrainDataset(Dataset):
+
     def __init__(
         self,
         path: str,
@@ -18,7 +19,11 @@ class TrainDataset(Dataset):
         self.labels = np.array(self.data[label_col].tolist())
         self.images = self.data.drop(label_col, inplace=False, axis=1)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            self.images, self.labels, shuffle=True, random_state=seed, train_size=(1 - test_split)
+            self.images,
+            self.labels,
+            shuffle=True,
+            random_state=seed,
+            train_size=(1 - test_split),
         )
         if train:
             self.images = self.X_train
@@ -30,7 +35,9 @@ class TrainDataset(Dataset):
 
     def __getitem__(self, index) -> Tuple[torch.tensor, int]:
         self.image = (
-            np.array(self.images.iloc[index].values.tolist()).astype(np.uint8).reshape(28, 28, 1)
+            np.array(self.images.iloc[index].values.tolist())
+            .astype(np.uint8)
+            .reshape(28, 28, 1)
         )
         self.image = self.transforms(self.image)
         return (

@@ -2,6 +2,7 @@ from ML import *
 
 
 class Metrics:
+
     def __init__(self, criterion: nn.Module, classes: list, dataloader, model, device):
         self.device = device
         self.criterion = criterion
