@@ -34,7 +34,7 @@ DigiVis is a comprehensive implementation of various neural network architecture
 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Programmer-RD-AI/DigiVis.git
 ```
 
 2. Install dependencies
